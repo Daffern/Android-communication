@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ArduinoCommunication</string>
+    <string name="action_settings">test</string>
+    <string name="title_activity_startup">activity_startup</string>
+
+    <string name="accessory_disconnected">No accessory connected</string>
+    <string name="device_disconnected">No device connected</string>
+</resources>
