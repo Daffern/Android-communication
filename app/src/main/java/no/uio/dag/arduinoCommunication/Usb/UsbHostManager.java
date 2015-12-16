@@ -82,7 +82,7 @@ public class UsbHostManager implements  MyUsbManager{
     }
 
 
-    private void stopIoManager() {
+    private void stopService() {
         if (serialIoManager != null) {
             Log.i(TAG, "Stopping io manager ..");
             serialIoManager.stop();

@@ -12,42 +12,47 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 
 import com.hoho.android.usbserial.driver.UsbSerialPort;
-
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import no.uio.dag.R;
 import no.uio.dag.arduinoCommunication.Chat.ChatAdapter;
-
-
 import no.uio.dag.arduinoCommunication.Chat.OneComment;
 import no.uio.dag.arduinoCommunication.Usb.UsbHostManager;
 import no.uio.dag.arduinoCommunication.Util.MessageListener;
 
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private final static String TAG ="ArduinoCommunication";
     private static final String PORTNUMBER="portnumber";
 
 
-
-    private ChatAdapter adapter;
     private ListView listView;
     private EditText editText;
     private Button button;
+
+    private Map<String, ChatAdapter> chatList = new HashMap<>();
+    private ChatAdapter currentChat;
+    private ArrayAdapter<String> channelAdapter;
 
     //HwCustTelephonyProvider
 
@@ -101,17 +106,11 @@ public class ChatActivity extends AppCompatActivity {
         }
 
 
-        initChat();
+        initGui();
     }
 
 
-    private void initChat(){
-        adapter = new ChatAdapter(this, R.id.form);
-        listView = (ListView)findViewById(R.id.chatList);
-        listView.setAdapter(adapter);
-        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        listView.setStackFromBottom(true);
-
+    private void initGui(){
         button = (Button)findViewById(R.id.submitButton);
         editText = (EditText)findViewById(R.id.editText);
 
@@ -122,19 +121,61 @@ public class ChatActivity extends AppCompatActivity {
                 byte[] data = editText.getText().toString().getBytes();
                 usbHostManager.sendMessage(data);
 
-                adapter.add(new OneComment(true, new String(data)));
+                currentChat.add(new OneComment(true, new String(data)));
                 editText.getText().clear();
             }
         });
+
+        listView = (ListView)findViewById(R.id.chatList);
+        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        listView.setStackFromBottom(true);
+
+
+        List<String> list = new ArrayList<>();
+        list.add("hei");
+
+        Spinner dropdown = (Spinner) findViewById(R.id.channel_dropdown);
+        channelAdapter =  new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        channelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dropdown.setAdapter(channelAdapter);
+
+
+        currentChat = addChannel("Default");
+        addChannel("test");
+        setCurrentChannel("Default");
+    }
+
+    private ChatAdapter addChannel(String name){
+        channelAdapter.add(name);
+
+        ChatAdapter chatAdapter = new ChatAdapter(this, R.id.form);
+        chatList.put(name, chatAdapter);
+        return chatAdapter;
+    }
+    private void setCurrentChannel(String channel){
+        currentChat = chatList.get(channel);
+        listView.setAdapter(currentChat);
+    }
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String item = (String)parent.getItemAtPosition(position);
+
+        currentChat = chatList.get(item);
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
 
 
 
-
-
     public void receiveMessage(byte[] data){
-        adapter.add(new OneComment(false, new String(data)));
+        currentChat.add(new OneComment(false, new String(data)));
     }
 
 
@@ -156,4 +197,6 @@ public class ChatActivity extends AppCompatActivity {
         intent.putExtra(PORTNUMBER, portnumber);
         context.startActivity(intent);
     }
+
+
 }

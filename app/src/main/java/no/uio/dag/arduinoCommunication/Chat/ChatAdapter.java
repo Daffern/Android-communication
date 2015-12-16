@@ -24,15 +24,22 @@ public class ChatAdapter extends ArrayAdapter<OneComment> {
     private List<OneComment> countries = new ArrayList<OneComment>();
     private LinearLayout wrapper;
 
+    int maxCount=100;
+
     @Override
     public void add(OneComment object) {
         countries.add(object);
+
+        if (countries.size() >= maxCount){
+            countries.remove(0);
+        }
 
         super.add(object);
     }
 
     public ChatAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
+
     }
 
     public int getCount() {
@@ -67,6 +74,10 @@ public class ChatAdapter extends ArrayAdapter<OneComment> {
 
 
         return row;
+    }
+
+    public void setMaxCount(int maxCount){
+        this.maxCount=maxCount;
     }
 
     public Bitmap decodeToBitmap(byte[] decodedByte) {

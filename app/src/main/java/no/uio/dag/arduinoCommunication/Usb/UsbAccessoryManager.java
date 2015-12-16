@@ -50,16 +50,15 @@ public class UsbAccessoryManager implements Runnable{
     public UsbAccessoryManager(Activity arduinoCommunication){
         this.arduinoCommunication = arduinoCommunication;
 
-        askForPermission();
-    }
-
-    private void askForPermission(){
+        //register receiver
         usbManager = (UsbManager) arduinoCommunication.getSystemService(Context.USB_SERVICE);
         mPermissionIntent = PendingIntent.getBroadcast(arduinoCommunication, 0, new Intent(ACTION_USB_PERMISSION), 0);
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         filter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
         arduinoCommunication.registerReceiver(mUsbReceiver, filter);
     }
+
+
 
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
@@ -168,7 +167,7 @@ public class UsbAccessoryManager implements Runnable{
                         outStream.flush();
                     }
                     catch(Exception e){
-                        Log.e(TAG,"Exception in message out1erc");
+                        Log.e(TAG,"Exception in message");
                     }
 
                     break;
